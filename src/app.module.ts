@@ -11,7 +11,6 @@ import { RedisModule } from './redis/redis.module';
 import { SpotifyModule } from './spotify/spotify.module';
 
 const validationSchema = Joi.object({
-  NODE_ENV: Joi.string().valid('dev', 'prod').default('dev'),
   PORT: Joi.number().default(3000),
   SPOTIFY_CLIENT_ID: Joi.string().required(),
   SPOTIFY_CLIENT_SECRET: Joi.string().required(),
