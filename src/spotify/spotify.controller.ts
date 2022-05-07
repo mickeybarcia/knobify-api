@@ -38,6 +38,7 @@ export class SpotifyController {
           userId,
           tracks.map(({ id }) => id),
         );
+      // grab tracks that are false for being in liked songs as per the array index
       const newTracks = tracks.filter((_, index) => !filteredTracks[index]);
       return this.formatGetRecommendationsResponse(newTracks);
     }
@@ -85,7 +86,7 @@ export class SpotifyController {
     try {
       await playTracks();
     } catch (error) {
-      // awake an inactive device if need be
+      // awake an inactive device if possible
       const { devices } = await this.spotifyService.getMyDevicesWrapper(userId);
       if (devices.length > 0) {
         const { id: defaultDeviceId } = devices[0];

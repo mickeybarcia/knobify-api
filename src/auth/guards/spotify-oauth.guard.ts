@@ -8,8 +8,8 @@ export class SpotifyOauthGuard extends AuthGuard('spotify') {
   canActivate(ctx: ExecutionContext) {
     const req = ctx.switchToHttp().getRequest();
     const res = ctx.switchToHttp().getResponse();
-    console.log('secure ' + process.env.NODE_ENV !== 'dev')
     res.cookie(STATE_COOKIE, req.query.state, {
+      // will verify cookie when spotify hits /auth/redirect
       httpOnly: true,
       secure: process.env.NODE_ENV !== 'dev',
       sameSite: 'none',

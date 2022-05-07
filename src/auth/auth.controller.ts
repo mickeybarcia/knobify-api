@@ -1,12 +1,12 @@
 import { Controller, Get, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 import { AuthService } from './auth.service';
 import { SpotifyOauthGuard } from './guards/spotify-oauth.guard';
 import { SpotifyService } from 'src/spotify/spotify.service';
 import { RefreshTokenAuthGuard } from './guards/refresh-token.guard';
 import { ReqUser } from './decorators/user.decorator';
-import { ConfigService } from '@nestjs/config';
 import { REFRESH_TOKEN_COOKIE, STATE_COOKIE } from './constants/auth.constants';
 
 @Controller('auth')
@@ -30,15 +30,17 @@ export class AuthController {
     @Query('state') state: string,
     @Res() res: Response,
   ): Promise<Response> {
+    // first validate spotify auth
     const { user, authInfo } = req;
     const cookieState = req.cookies[STATE_COOKIE] || null;
-    console.log('cookieState ' + cookieState)
     if (cookieState !== state || !user) {
       const errorUrl =
         this.configService.get('KNOBIFY_URL') + '/login?error=true';
       res.redirect(errorUrl);
       return;
     }
+
+    // then save spotify auth and backend auth
     const { id: userId } = user;
     this.spotifyService.saveAuth(userId, authInfo);
     req.user = undefined;
@@ -48,6 +50,8 @@ export class AuthController {
       secure: this.configService.get('NODE_ENV') !== 'dev',
       sameSite: 'none',
     });
+
+    // return to frontend
     res.redirect(this.configService.get('KNOBIFY_URL'));
   }
 

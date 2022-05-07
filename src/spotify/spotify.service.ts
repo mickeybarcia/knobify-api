@@ -104,6 +104,7 @@ export class SpotifyService extends SpotifyWebApi {
         return data;
       } catch (err) {
         if (err.statusCode === 401) {
+          console.warn('spotify auth error: ', err);
           await this.refreshAuth(userId);
           return call(this);
         }

@@ -24,6 +24,7 @@ export class AccessTokenStrategy extends PassportStrategy(
   }
 
   async validate(payload: JwtPayload): Promise<User> {
+    // fail early if there is no spotify token
     const { sub: userId } = payload;
     const token = await this.spotifyTokenService.getAccessToken(userId);
     if (!token) {
