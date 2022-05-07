@@ -8,7 +8,10 @@ export class SpotifyOauthGuard extends AuthGuard('spotify') {
   canActivate(ctx: ExecutionContext) {
     const req = ctx.switchToHttp().getRequest();
     const res = ctx.switchToHttp().getResponse();
-    res.cookie(STATE_COOKIE, req.query.state);
+    res.cookie(STATE_COOKIE, req.query.state, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== 'dev',
+    });
     return super.canActivate(ctx);
   }
 }

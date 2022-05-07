@@ -42,7 +42,10 @@ export class AuthController {
     this.spotifyService.saveAuth(userId, authInfo);
     req.user = undefined;
     const refreshToken = this.authService.createRefreshToken(userId);
-    res.cookie(REFRESH_TOKEN_COOKIE, refreshToken, { httpOnly: true });
+    res.cookie(REFRESH_TOKEN_COOKIE, refreshToken, {
+      httpOnly: true,
+      secure: this.configService.get('NODE_ENV') !== 'dev',
+    });
     res.redirect(this.configService.get('KNOBIFY_URL'));
   }
 
