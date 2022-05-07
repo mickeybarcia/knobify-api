@@ -9,6 +9,7 @@ import { JwtPayload, User } from '../dto/auth.dto';
 
 const extractJwtFromCookie: JwtFromRequestFunction = (req) => {
   const token = req.cookies[REFRESH_TOKEN_COOKIE] || null;
+  console.log('refresh token: ' + token)
   return token;
 };
 

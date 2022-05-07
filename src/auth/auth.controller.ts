@@ -32,6 +32,7 @@ export class AuthController {
   ): Promise<Response> {
     const { user, authInfo } = req;
     const cookieState = req.cookies[STATE_COOKIE] || null;
+    console.log('cookieState ' + cookieState)
     if (cookieState !== state || !user) {
       const errorUrl =
         this.configService.get('KNOBIFY_URL') + '/login?error=true';
@@ -45,6 +46,7 @@ export class AuthController {
     res.cookie(REFRESH_TOKEN_COOKIE, refreshToken, {
       httpOnly: true,
       secure: this.configService.get('NODE_ENV') !== 'dev',
+      sameSite: 'none',
     });
     res.redirect(this.configService.get('KNOBIFY_URL'));
   }
