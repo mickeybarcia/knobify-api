@@ -12,7 +12,7 @@ export class SpotifyOauthGuard extends AuthGuard('spotify') {
       // will verify cookie when spotify hits /auth/redirect
       httpOnly: true,
       secure: process.env.NODE_ENV !== 'dev',
-      sameSite: 'none',
+      // sameSite: 'none',
     });
     return super.canActivate(ctx);
   }

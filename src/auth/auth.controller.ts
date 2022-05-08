@@ -33,6 +33,7 @@ export class AuthController {
     // first validate spotify auth
     const { user, authInfo } = req;
     const cookieState = req.cookies[STATE_COOKIE] || null;
+    if (!cookieState) console.warn('no cookie for state set in spotify redirect')
     if (cookieState !== state || !user) {
       const errorUrl =
         this.configService.get('KNOBIFY_URL') + '/login?error=true';
@@ -48,7 +49,7 @@ export class AuthController {
     res.cookie(REFRESH_TOKEN_COOKIE, refreshToken, {
       httpOnly: true,
       secure: this.configService.get('NODE_ENV') !== 'dev',
-      sameSite: 'none',
+      // sameSite: 'none',
     });
 
     // return to frontend
