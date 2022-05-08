@@ -18,7 +18,17 @@ export type RecommendationsQueryDto = {
   max_instrumentalness?: number;
   min_instrumentalness?: number;
 
+  max_loudness?: number;
+  min_loudness?: number;
+
+  max_valence?: number;
+  min_valence?: number;
+
+  // -- 0-100 --//
+  max_popularity?: number;
+  min_popularity?: number;
+
   // added fields
-  excludeDays?: number;
+  excludeRecent?: boolean;
   excludeLiked?: boolean;
 };

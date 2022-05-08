@@ -4,7 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy, VerifyCallback } from 'passport-spotify';
 
 const scope =
-  'user-library-read streaming user-top-read user-read-playback-state';
+  'user-library-read streaming user-top-read user-read-playback-state user-read-recently-played';
 
 @Injectable()
 export class SpotifyOauthStrategy extends PassportStrategy(

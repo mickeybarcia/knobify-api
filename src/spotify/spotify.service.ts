@@ -38,6 +38,10 @@ export class SpotifyService extends SpotifyWebApi {
     );
   }
 
+  async getMyRecentlyPlayedTracksWrapper(userId: string, limit: number) {
+    return this.call(userId, (api) => api.getMyRecentlyPlayedTracks({ limit }));
+  }
+
   async containsMySavedTracksWrapper(userId: string, trackIds: string[]) {
     return this.call(userId, (api) => api.containsMySavedTracks(trackIds));
   }

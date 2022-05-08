@@ -13,6 +13,7 @@ import {
 import { SpotifyService } from './spotify.service';
 
 const RECOMMENDATIONS_LIMIT = 20;
+const RECENTLY_PLAYED_LIMIT = 50;
 const SEARCH_LIMIT = 5;
 
 @UseGuards(AccessTokenAuthGuard)
@@ -25,13 +26,14 @@ export class SpotifyController {
     @ReqUser('userId') userId: string,
     @Body() recommendationsQuery: RecommendationsQueryDto,
   ): Promise<RecommendationsResponseDto> {
-    if (!recommendationsQuery.limit) {
-      recommendationsQuery.limit = RECOMMENDATIONS_LIMIT;
-    }
-    const { tracks } = await this.spotifyService.getRecommendationsWrapper(
-      userId,
-      recommendationsQuery,
-    );
+    let tracks;
+    recommendationsQuery.limit = RECOMMENDATIONS_LIMIT;
+    const { tracks: spotifyServiceTracks } =
+      await this.spotifyService.getRecommendationsWrapper(
+        userId,
+        recommendationsQuery,
+      );
+    tracks = spotifyServiceTracks;
     if (recommendationsQuery.excludeLiked) {
       const filteredTracks: boolean[] =
         await this.spotifyService.containsMySavedTracksWrapper(
@@ -39,8 +41,16 @@ export class SpotifyController {
           tracks.map(({ id }) => id),
         );
       // grab tracks that are false for being in liked songs as per the array index
-      const newTracks = tracks.filter((_, index) => !filteredTracks[index]);
-      return this.formatGetRecommendationsResponse(newTracks);
+      tracks = tracks.filter((_, index) => !filteredTracks[index]);
+    }
+    if (recommendationsQuery.excludeRecent) {
+      const { items: recentTracks } =
+        await this.spotifyService.getMyRecentlyPlayedTracksWrapper(
+          userId,
+          RECENTLY_PLAYED_LIMIT,
+        );
+      const recentTrackIds = recentTracks.map(({ track: { id } }) => id);
+      tracks = tracks.filter(({ id }) => !recentTrackIds.includes(id));
     }
     return this.formatGetRecommendationsResponse(tracks);
   }
