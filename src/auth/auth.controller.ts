@@ -48,6 +48,7 @@ export class AuthController {
     res.cookie(REFRESH_TOKEN_COOKIE, refreshToken, {
       httpOnly: true,
       secure: this.configService.get('NODE_ENV') !== 'dev',
+      sameSite: 'none',
     });
 
     // return to frontend
