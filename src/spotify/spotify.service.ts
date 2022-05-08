@@ -8,6 +8,7 @@ import SpotifyWebApi from 'spotify-web-api-node';
 
 import { SpotifyTokenService } from 'src/redis/spotify-token.service';
 import { RecommendationsQueryDto } from './dto/recommendations-query.dto';
+import { Artist, Track } from './dto/spotify.dto';
 
 interface Response<T> {
   body: T;
@@ -32,54 +33,73 @@ export class SpotifyService extends SpotifyWebApi {
   async getRecommendationsWrapper(
     userId: string,
     recommendationOptions: RecommendationsQueryDto,
-  ) {
-    return this.call(userId, (api) =>
+  ): Promise<Track[]> {
+    const { tracks } = await this.call(userId, (api) =>
       api.getRecommendations(recommendationOptions),
     );
+    return tracks.map((track) => this.formatSpotifyTrack(track));
   }
 
-  async getMyRecentlyPlayedTracksWrapper(userId: string, limit: number) {
-    return this.call(userId, (api) => api.getMyRecentlyPlayedTracks({ limit }));
+  async getMyRecentlyPlayedTracksWrapper(
+    userId: string,
+    limit: number,
+  ): Promise<Track[]> {
+    const { items: tracks } = await this.call(userId, (api) =>
+      api.getMyRecentlyPlayedTracks({ limit }),
+    );
+    return tracks.map((track) => this.formatSpotifyTrack(track));
   }
 
-  async containsMySavedTracksWrapper(userId: string, trackIds: string[]) {
+  async containsMySavedTracksWrapper(
+    userId: string,
+    trackIds: string[],
+  ): Promise<boolean[]> {
     return this.call(userId, (api) => api.containsMySavedTracks(trackIds));
   }
 
-  async searchArtistsWrapper(userId: string, query: string, limit: number) {
-    return this.call(userId, (api) => api.searchArtists(query, { limit }));
+  async searchArtistsWrapper(
+    userId: string,
+    query: string,
+    limit: number,
+  ): Promise<Artist[]> {
+    const {
+      artists: { items: artists },
+    } = await this.call(userId, (api) => api.searchArtists(query, { limit }));
+    return artists.map(this.formatSpotifyArtist);
   }
 
-  async searchTracksWrapper(userId: string, query: string, limit: number) {
-    return this.call(userId, (api) => api.searchTracks(query, { limit }));
+  async searchTracksWrapper(
+    userId: string,
+    query: string,
+    limit: number,
+  ): Promise<Track[]> {
+    const {
+      tracks: { items: tracks },
+    } = await this.call(userId, (api) => api.searchTracks(query, { limit }));
+    return tracks.map((track) => this.formatSpotifyTrack(track));
   }
 
-  async playTrackWrapper(userId: string, uris: string[]) {
+  async playTrackWrapper(userId: string, uris: string[]): Promise<void> {
     return this.call(userId, (api) =>
       api.play({ uris, offset: { position: 0 } }),
     );
   }
 
-  async getMyDevicesWrapper(userId: string) {
-    return this.call(userId, (api) => api.getMyDevices());
+  async getMyDevicesWrapper(userId: string): Promise<string[]> {
+    const { devices } = await this.call(userId, (api) => api.getMyDevices());
+    return devices.map(({ id }) => id);
   }
 
-  async transferMyPlaybackWrapper(userId: string, deviceId: string) {
+  async transferMyPlaybackWrapper(
+    userId: string,
+    deviceId: string,
+  ): Promise<void> {
     return this.call(userId, (api) => api.transferMyPlayback([deviceId]));
   }
 
   private async setAuth(userId: string) {
     const accessToken = await this.spotifyTokenService.getAccessToken(userId);
     this.setAccessToken(accessToken);
-  }
-
-  async saveAuth(
-    userId: string,
-    authInfo: { accessToken: string; refreshToken: string },
-  ) {
-    const { accessToken, refreshToken } = authInfo;
-    await this.spotifyTokenService.saveAccessToken(accessToken, userId);
-    await this.spotifyTokenService.saveRefreshToken(refreshToken, userId);
   }
 
   private async refreshAuth(userId: string) {
@@ -120,5 +140,41 @@ export class SpotifyService extends SpotifyWebApi {
     await this.setAuth(userId);
     const { body } = await makeCall();
     return body;
+  }
+
+  private formatSpotifyArtist(artist): Artist {
+    const {
+      id,
+      name,
+      uri: playUri,
+      external_urls: { spotify: appUrl },
+    } = artist;
+    return {
+      id,
+      name,
+      playUri,
+      appUrl,
+    };
+  }
+
+  private formatSpotifyTrack(track): Track {
+    const {
+      id,
+      name,
+      artists,
+      external_urls: { spotify: appUrl },
+      is_playable: isPlayable,
+      album: { images },
+      uri: playUri,
+    } = track;
+    return {
+      id,
+      name,
+      artists: artists.map(this.formatSpotifyArtist),
+      appUrl,
+      isPlayable,
+      picUrl: images.length > 0 ? images[0].url : '',
+      playUri,
+    };
   }
 }

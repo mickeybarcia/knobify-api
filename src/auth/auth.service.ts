@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+
 import { JwtPayload } from './dto/auth.dto';
 
 const REFRESH_EXPIRES_IN = '365d';

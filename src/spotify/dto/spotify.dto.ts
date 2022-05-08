@@ -14,15 +14,3 @@ export type Track = {
   picUrl: string;
   isPlayable: boolean;
 };
-
-export type RecommendationsResponseDto = {
-  tracks: Track[];
-};
-
-export type SearchArtistResponseDto = {
-  artists: Artist[];
-};
-
-export type SearchTracksResponseDto = {
-  tracks: Track[];
-};

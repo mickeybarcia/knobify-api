@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { AccessTokenStrategy } from './strategies/access-token.strategy';
 import { SpotifyOauthStrategy } from './strategies/spotify-oauth.strategy';
 import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
-import { SpotifyModule } from 'src/spotify/spotify.module';
 import { RedisModule } from 'src/redis/redis.module';
 
 @Module({
@@ -22,8 +21,6 @@ import { RedisModule } from 'src/redis/redis.module';
       },
       inject: [ConfigService],
     }),
-    SpotifyModule,
-    ConfigModule,
     RedisModule,
   ],
   providers: [
@@ -33,5 +30,6 @@ import { RedisModule } from 'src/redis/redis.module';
     SpotifyOauthStrategy,
   ],
   controllers: [AuthController],
+  exports: [AuthService],
 })
 export class AuthModule {}
