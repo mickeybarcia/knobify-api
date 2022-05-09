@@ -47,7 +47,7 @@ export class SpotifyService extends SpotifyWebApi {
     const { items: tracks } = await this.call(userId, (api) =>
       api.getMyRecentlyPlayedTracks({ limit }),
     );
-    return tracks.map((track) => this.formatSpotifyTrack(track));
+    return tracks.map(({ track }) => this.formatSpotifyTrack(track));
   }
 
   async containsMySavedTracksWrapper(

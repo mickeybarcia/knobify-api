@@ -29,7 +29,7 @@ export class SpotifyController {
       tracks = await this.filterLikedSongs(userId, tracks);
     }
     if (recommendationsQuery.excludeRecent) {
-      tracks = await this.filterRecent(userId, tracks);
+      tracks = await this.filterRecentSongs(userId, tracks);
     }
     return { tracks };
   }
@@ -81,7 +81,7 @@ export class SpotifyController {
     }
   }
 
-  private async filterRecent(userId: string, tracks: Track[]) {
+  private async filterRecentSongs(userId: string, tracks: Track[]) {
     const recentTracks =
       await this.spotifyService.getMyRecentlyPlayedTracksWrapper(
         userId,
