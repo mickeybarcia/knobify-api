@@ -97,6 +97,11 @@ export class SpotifyService extends SpotifyWebApi {
     return this.call(userId, (api) => api.transferMyPlayback([deviceId]));
   }
 
+  async getCurrentSongWrapper(userId: string): Promise<Track> {
+    const { item: track} = await this.call(userId, (api) => api.getMyCurrentPlayingTrack())
+    return this.formatSpotifyTrack(track);
+  }
+
   private async setAuth(userId: string) {
     const accessToken = await this.spotifyTokenService.getAccessToken(userId);
     this.setAccessToken(accessToken);

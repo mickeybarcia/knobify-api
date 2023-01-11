@@ -47,6 +47,14 @@ export class SpotifyController {
     return { artists };
   }
 
+  @Get('currentPlayingSong')
+  async currentPlayingSong(
+    @ReqUser('userId') userId: string,
+  ): Promise<{ track: Track }> {
+    const track = await this.spotifyService.getCurrentSongWrapper(userId);
+    return { track };
+  }
+
   @Get('searchTracks')
   async searchTracks(
     @Query('query') query,
